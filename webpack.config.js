@@ -21,7 +21,7 @@ module.exports = {
   },
   plugins: [
     new DeclarationBundlerPlugin({
-      moduleName: 'lib',
+      moduleName: 'LruCacheTs',
       out: './types/index.d.ts'
     })
   ]
