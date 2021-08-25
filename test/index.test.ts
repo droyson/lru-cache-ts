@@ -165,4 +165,149 @@ describe('index.ts', function () {
       expect(lru.peek('A')).toBeUndefined()
     })
   })
+
+  describe('for each to loop through cache', function () {
+    let lru: LRUCache<unknown>
+    const max = 10
+    beforeEach(() => {
+      lru = new LRUCache({max})
+      for (let i = 0; i < max; i++) {
+        lru.set(String.fromCharCode(65 + i), i)
+      }
+    })
+
+    test('should return value and key in the callback function', () => {
+      let counter = max
+      lru.forEach((value, key) => {
+        counter--
+        expect(key).toEqual(String.fromCharCode(65 + counter))
+        expect(value).toEqual(counter)
+      })
+      expect(counter).toEqual(0)
+    })
+
+    test('should return most recently used value first', () => {
+      lru.get('A')
+      lru.set('D', 'new value of D')
+      let counter = 0
+      lru.forEach((value, key) => {
+        if (counter === 0) {
+          expect(value).toEqual('new value of D')
+          expect(key).toEqual('D')
+        }
+        if (counter === 1) {
+          expect(value).toEqual(0)
+          expect(key).toEqual('A')
+        }
+        counter++
+      })
+      expect(counter).toEqual(max)
+    })
+
+    test('should not call the callback if list is empty', () => {
+      lru.reset()
+      let counter = 0
+      lru.forEach(() => {
+        counter++
+      })
+      expect(counter).toEqual(0)
+    })
+  })
+
+  describe('reverse for each loop for cache', function () {
+    let lru: LRUCache<unknown>
+    const max = 10
+    beforeEach(() => {
+      lru = new LRUCache({max})
+      for (let i = 0; i < max; i++) {
+        lru.set(String.fromCharCode(65 + i), i)
+      }
+    })
+
+    test('should return value and key in the callback function', () => {
+      let counter = 0
+      lru.rforEach((value, key) => {
+        expect(key).toEqual(String.fromCharCode(65 + counter))
+        expect(value).toEqual(counter)
+        counter++
+      })
+      expect(counter).toEqual(max)
+    })
+
+    test('should return least recently used value first', () => {
+      lru.get('A')
+      lru.set('D', 'new value of D')
+      let counter = 0
+      lru.rforEach((value, key) => {
+        if (counter === max - 1) {
+          expect(value).toEqual('new value of D')
+          expect(key).toEqual('D')
+        }
+        if (counter === max - 2) {
+          expect(value).toEqual(0)
+          expect(key).toEqual('A')
+        }
+        counter++
+      })
+      expect(counter).toEqual(max)
+    })
+
+    test('should not call the callback if list is empty', () => {
+      lru.reset()
+      let counter = 0
+      lru.rforEach(() => {
+        counter++
+      })
+      expect(counter).toEqual(0)
+    })
+  })
+
+  describe('dump and load cache', function () {
+    let lru: LRUCache<unknown>
+    const max = 10
+    beforeEach(() => {
+      lru = new LRUCache({max})
+      for (let i = 0; i < max; i++) {
+        lru.set(String.fromCharCode(65 + i), i)
+      }
+    })
+
+    test('should create a dump array of length equal to length of cache', () => {
+      const dump = lru.dump()
+      expect(dump.length).toEqual(lru.length)
+    })
+
+    test('should load the dump in cache', () => {
+      const dump = lru.dump()
+      const newLru = new LRUCache<unknown>({max})
+      newLru.set('foo', 'foo value')
+      newLru.load(dump)
+      expect(newLru.has('foo')).toBeFalsy()
+      expect(newLru.get('A')).toEqual(0)
+      expect(newLru.length).toEqual(dump.length)
+    })
+
+    test('should dump and load based on least recently used', () => {
+      lru.get('A')
+      lru.get('B')
+      const dump = lru.dump()
+      const newLru = new LRUCache<unknown>({max: 3})
+      newLru.load(dump)
+      let counter = 0
+      newLru.forEach((value, key) => {
+        if (counter === 0) {
+          expect(value).toEqual(1)
+          expect(key).toEqual('B')
+        } else if (counter === 1) {
+          expect(value).toEqual(0)
+          expect(key).toEqual('A')
+        } else if (counter === 2) {
+          expect(value).toEqual(9)
+          expect(key).toEqual('J')
+        }
+        counter++
+      })
+      expect(counter).toEqual(newLru.length)
+    })
+  })
 })

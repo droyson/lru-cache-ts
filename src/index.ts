@@ -11,6 +11,13 @@ const defaultOptions = {
   max: Infinity
 }
 
+type ForEachCallback<T> = (value: T, key: string) => void
+
+type LRUDumpObject<T> = {
+  k: string,
+  v: T
+}
+
 export class LRUCache <Type> {
   private _max: number
   private cacheObj: Record<string, LRUCacheObject<Type>>
@@ -36,7 +43,6 @@ export class LRUCache <Type> {
   }
 
   set (key: string, value: Type):void {
-    console.log('setting', key, value)
     if (typeof key !== 'string' || !key) {
       throw new TypeError('invalid key')
     }
@@ -99,7 +105,40 @@ export class LRUCache <Type> {
     this.keys = []
   }
 
-  forEach ():void {
-    // todo
+  forEach (fn: ForEachCallback<Type>):void {
+    for (let i = this.keys.length - 1; i >= 0; i--) {
+      const key = this.keys[i]
+      const value = this.cacheObj[key].value
+      fn(value, key)
+    }
+  }
+
+  rforEach (fn: ForEachCallback<Type>): void {
+    for (let i = 0; i < this.keys.length; i++) {
+      const key = this.keys[i]
+      const value = this.cacheObj[key].value
+      fn(value, key)
+    }
+  }
+
+  dump (): Array<LRUDumpObject<Type>> {
+    const dumpArray = []
+    for (let i = this.keys.length - 1; i >= 0; i--) {
+      const key = this.keys[i]
+      const value = this.cacheObj[key].value
+      dumpArray.push({
+        k: key,
+        v: value
+      })
+    }
+    return dumpArray
+  }
+
+  load (dumpArray: Array<LRUDumpObject<Type>>): void {
+    this.reset()
+    for (let i = dumpArray.length - 1; i >= 0; i--) {
+      const {k: key, v: value} = dumpArray[i]
+      this.set(key, value)
+    }
   }
 }
