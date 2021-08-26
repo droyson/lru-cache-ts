@@ -1,6 +1,10 @@
 # LRU Cache TS
 This library is inspired from [node-lru-cache](https://github.com/isaacs/node-lru-cache) and is completely written in Typescript with test coverage.
 
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/droyson/lru-cache-ts/build)
+[![Coverage Status](https://coveralls.io/repos/github/droyson/lru-cache-ts/badge.svg?branch=main)](https://coveralls.io/github/droyson/lru-cache-ts?branch=main)
+
+
 ## Installation:
 npm:
 ```
