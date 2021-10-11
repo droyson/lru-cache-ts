@@ -17,7 +17,11 @@ module.exports = {
   },
   output: {
     filename: 'index.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    library: {
+      name: 'LRUCache',
+      type: 'umd2'
+    }
   },
   plugins: [
     new DeclarationBundlerPlugin({
