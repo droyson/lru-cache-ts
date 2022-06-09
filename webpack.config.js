@@ -1,7 +1,7 @@
 const path = require('path')
-const DeclarationBundlerPlugin = require('types-webpack-bundler')
+const {merge} = require('webpack-merge')
 
-module.exports = {
+const commonConfig = {
   entry: './src/index.ts',
   module: {
     rules: [
@@ -16,17 +16,27 @@ module.exports = {
     extensions: ['.ts', '.js']
   },
   output: {
-    filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
-    library: {
-      name: 'LRUCache',
-      type: 'umd2'
-    }
-  },
-  plugins: [
-    new DeclarationBundlerPlugin({
-      moduleName: 'LruCacheTs',
-      out: './types/index.d.ts'
-    })
-  ]
+  }
 }
+
+module.exports = [
+  merge(commonConfig, {
+    target: 'node',
+    output: {
+      filename: 'index.common.js',
+      library: {
+        type: 'commonjs2'
+      }
+    }
+  }),
+  merge(commonConfig, {
+    target: 'web',
+    output: {
+      filename: 'index.umd.js',
+      library: {
+        type: 'umd2'
+      }
+    }
+  })
+]

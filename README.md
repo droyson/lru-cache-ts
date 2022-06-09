@@ -22,7 +22,7 @@ yarn add lru-cache-ts
 import { LRUCache } from 'lru-cache-ts'
 
 type CacheType = any // set this to a fixed type for type-checking
-const cache = LRUCache<CacheType>({ max: 100 })
+const cache = new LRUCache<CacheType>({ max: 100 })
 
 // key needs to be string, value to be same as cache type defined while creating the object
 cache.set('key', 'value')
